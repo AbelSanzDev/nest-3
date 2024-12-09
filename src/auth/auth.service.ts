@@ -29,7 +29,7 @@ export class AuthService {
       });
       await this.userRepository.save(user);
       delete user.password;
-      return { ...user, token: this.getJwtToken({ email: user.email }) };
+      return { ...user, token: this.getJwtToken({ id: user.id }) };
     } catch (error) {
       this.handleDBErrors(error);
     }
@@ -42,12 +42,12 @@ export class AuthService {
       where: {
         email,
       },
-      select: { email: true, password: true },
+      select: { email: true, password: true, id: true },
     });
     if (!user) throw new NotFoundException('User not found');
     if (!bcrypt.compareSync(password, user.password))
       throw new UnauthorizedException('Credentials doest match');
-    return { ...user, token: this.getJwtToken({ email: user.email }) };
+    return { ...user, token: this.getJwtToken({ id: user.id }) };
   }
   private handleDBErrors(error: any): never {
     if (error.code === '23505') {
